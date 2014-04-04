@@ -42,20 +42,26 @@
 				<div class="row">
 					<div class="col-sm-8 blog-main" ng-controller="PostController">
 						<div class="blog-post">
+							<h2 class="blog-post-title">Charts with Amcharts</h2>
+							<div class="blog-post-meta">
+								<div id="chartdiv" style="width:100%; height:400px;"></div>
+							</div>
+						</div>
+						<div class="blog-post">
 							<h2 class="blog-post-title">Start Up Help</h2>
 							<div class="blog-post-meta">
 								<form ng-controller="StartUpController" class="form-horizontal" role="form" ng-submit="requestFunding()">
 									<div class="form-group">
-									  <label for="inputEmail3" class="col-sm-4 control-label">Starting: *</label>
-									  <div class="col-sm-8">
-									    <input class="form-control" ng-model="startingEstimate" ng-change="computeNeeded()">
-									  </div>
+										<label for="inputEmail3" class="col-sm-4 control-label">Starting: *</label>
+										<div class="col-sm-8">
+											<input class="form-control" ng-model="startingEstimate" ng-change="computeNeeded()">
+										</div>
 									</div>
 									<div class="form-group">
-									  <div class="col-sm-offset-2 col-sm-10">
-									    <button type="submit" class="btn btn-default">Fund my StartUp!</button>
-									    <button type="submit" class="btn btn-info" ng-click="reset()">Reset</button>
-									  </div>
+										<div class="col-sm-offset-2 col-sm-10">
+											<button type="submit" class="btn btn-default">Fund my StartUp!</button>
+											<button type="submit" class="btn btn-info" ng-click="reset()">Reset</button>
+										</div>
 									</div>
 									<span class="label label-primary">
 										Recomendation: {{needed}}
@@ -203,7 +209,72 @@
 			<script src="assets/js/vendor/plugins.js"></script>
 			<script src="assets/js/app/main.js"></script>
 			<script src="assets/js/vendor/angular.min.js"></script>
+			<script src="assets/js/vendor/jquery.ui.touch-punch.js"></script>
+			<script src="assets/js/vendor/amcharts.js"></script>
+			<script src="assets/js/vendor/serial.js"></script>
 			<script src="assets/js/app/controller.js"></script>
+			<script src="assets/js/app/main.js"></script>
+			<script>
+				AmCharts.ready(function () {
+						// SERIAL CHART
+						chart = new AmCharts.AmSerialChart();
+						chart.pathToImages = "assets/img/";
+						chart.dataProvider = chartData;
+						chart.marginLeft = 10;
+						chart.categoryField = "year";
+						chart.dataDateFormat = "YYYY";
+
+						// listen for "dataUpdated" event (fired when chart is inited) and call zoomChart method when it happens
+						chart.addListener("dataUpdated", zoomChart);
+
+						// AXES
+						// category
+						var categoryAxis = chart.categoryAxis;
+						categoryAxis.parseDates = true; // as our data is date-based, we set parseDates to true
+						categoryAxis.minPeriod = "YYYY"; // our data is yearly, so we set minPeriod to YYYY
+						categoryAxis.dashLength = 3;
+						categoryAxis.minorGridEnabled = true;
+						categoryAxis.minorGridAlpha = 0.1;
+
+						// value
+						var valueAxis = new AmCharts.ValueAxis();
+						valueAxis.axisAlpha = 0;
+						valueAxis.inside = true;
+						valueAxis.dashLength = 3;
+						chart.addValueAxis(valueAxis);
+
+						// GRAPH
+						graph = new AmCharts.AmGraph();
+						graph.type = "smoothedLine"; // this line makes the graph smoothed line.
+						graph.lineColor = "#d1655d";
+						graph.negativeLineColor = "#637bb6"; // this line makes the graph to change color when it drops below 0
+						graph.bullet = "round";
+						graph.bulletSize = 8;
+						graph.bulletBorderColor = "#FFFFFF";
+						graph.bulletBorderAlpha = 1;
+						graph.bulletBorderThickness = 2;
+						graph.lineThickness = 2;
+						graph.valueField = "value";
+						graph.balloonText = "[[category]]<br><b><span style='font-size:14px;'>[[value]]</span></b>";
+						chart.addGraph(graph);
+
+						// CURSOR
+						var chartCursor = new AmCharts.ChartCursor();
+						chartCursor.cursorAlpha = 0;
+						chartCursor.cursorPosition = "mouse";
+						chartCursor.categoryBalloonDateFormat = "YYYY";
+						chart.addChartCursor(chartCursor);
+
+						// SCROLLBAR
+						var chartScrollbar = new AmCharts.ChartScrollbar();
+						chart.addChartScrollbar(chartScrollbar);
+
+						chart.creditsPosition = "bottom-right";
+
+						// WRITE
+						chart.write("chartdiv");
+				});
+			</script>
 
 			<script>
 			var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
